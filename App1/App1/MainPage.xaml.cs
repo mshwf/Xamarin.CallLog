@@ -1,11 +1,6 @@
 ﻿using App1.Interfaces;
-using Plugin.Permissions;
-using Plugin.Permissions.Abstractions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace App1
@@ -30,22 +25,14 @@ namespace App1
 
             try
             {
-                var statusContact = await CrossPermissions.Current.CheckPermissionStatusAsync(Permission.Contacts);
-                var statusPhone = await CrossPermissions.Current.CheckPermissionStatusAsync(Permission.Phone);
-                if (statusContact != PermissionStatus.Granted || statusPhone != PermissionStatus.Granted)
-                {
-                    if (await CrossPermissions.Current.ShouldShowRequestPermissionRationaleAsync(Permission.Contacts))
-                    {
-                        await DisplayAlert(APP_NAME, "Se requiere permisos para acceder a los contactos", "OK");
-                    }
-
-                    var results = await CrossPermissions.Current.RequestPermissionsAsync(Permission.Contacts, Permission.Phone);
-                    //Best practice to always check that the key exists
-                    if (results.ContainsKey(Permission.Contacts))
-                        statusContact = results[Permission.Contacts];
-                    if (results.ContainsKey(Permission.Phone))
-                        statusPhone = results[Permission.Phone];
-                }
+                var statusContact = await Permissions.CheckStatusAsync<Permissions.ContactsRead>();
+                var statusPhone = await Permissions.CheckStatusAsync<Permissions.Phone>();
+                
+                if (statusContact != PermissionStatus.Granted)
+                    statusContact = await Permissions.RequestAsync<Permissions.ContactsRead>();
+                
+                if (statusPhone != PermissionStatus.Granted)
+                    statusPhone = await Permissions.RequestAsync<Permissions.Phone>();
 
                 if (statusContact == PermissionStatus.Granted && statusPhone == PermissionStatus.Granted)
                 {
